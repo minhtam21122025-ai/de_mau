@@ -3,14 +3,19 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// An toàn trên mọi môi trường (Vercel Serverless, Node CJS, Node ESM, Docker, Dev)
+const isVercel = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME || !!process.env.VERCEL_ENV;
+let DATA_DIR = path.join('/tmp', 'eduexam_data');
 
-const isVercel = !!process.env.VERCEL;
-// Trên Vercel, chỉ có thư mục /tmp được phép ghi
-const DATA_DIR = isVercel
-  ? path.join('/tmp', 'eduexam_data')
-  : path.resolve(__dirname, '../../data');
+if (!isVercel) {
+  try {
+    const metaUrl = typeof import.meta !== 'undefined' && import.meta?.url ? import.meta.url : null;
+    const baseDir = metaUrl ? path.dirname(fileURLToPath(metaUrl)) : (typeof __dirname !== 'undefined' ? __dirname : process.cwd());
+    DATA_DIR = path.resolve(baseDir, '../../data');
+  } catch {
+    DATA_DIR = path.join(process.cwd(), 'data');
+  }
+}
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
 export interface StoredUser {

@@ -37,9 +37,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     req.url = forwardedUri;
   }
 
-  // Handle catch-all parameter if routed via api/[...path].ts
+  // Handle catch-all parameter if routed via /api?path=$1
   const qPath = req.query?.path;
-  if (qPath && (req.url === '/' || req.url === '/api' || req.url.startsWith('/?'))) {
+  if (qPath && (req.url === '/' || req.url === '/api' || req.url.startsWith('/?') || req.url.startsWith('/api?') || req.url.startsWith('/api/?'))) {
     const subpath = Array.isArray(qPath) ? qPath.join('/') : qPath;
     req.url = '/api/' + String(subpath).replace(/^\/+/, '');
   }
